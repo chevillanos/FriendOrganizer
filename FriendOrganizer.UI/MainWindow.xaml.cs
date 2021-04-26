@@ -11,17 +11,24 @@ namespace FriendOrganizer.UI
     {
         private readonly MainViewModel _viewModel;
 
+        // See Bootstrapper.cs for xaml to accept a ViewModel parameter
         public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
             _viewModel = viewModel;
-            DataContext = _viewModel;
+            // Do not put Load() in constructor
+            // Constructor should just initialize the View object
+            // and not make a call to DB (Load - calls an EF service)
+            DataContext = _viewModel; 
             Loaded += MainWindow_Loaded;
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        // Add this function to the Loaded delegate to call on 
+        // a view model's Load
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            _viewModel.Load();
+            await _viewModel.LoadAsync();
         }
     }
 }

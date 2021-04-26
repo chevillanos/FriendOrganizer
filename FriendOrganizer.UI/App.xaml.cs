@@ -18,13 +18,13 @@ namespace FriendOrganizer.UI
     {
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            var bootstrapper = new Bootstrapper();
-            var container = bootstrapper.Bootstrap();
-
             // W/o Autofac
             //var mainWindow = new MainWindow(
             //    new MainViewModel(new FriendDataService()));
             //mainWindow.Show();
+
+            var bootstrapper = new Bootstrapper();
+            var container = bootstrapper.Bootstrap();           
 
             var mainWindow = container.Resolve<MainWindow>();
             mainWindow.Show();

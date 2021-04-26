@@ -5,30 +5,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FriendOrganizer.UI"
         mc:Ignorable="d"
-        Title="FriendOrganizer" Height="350" Width="525" FontSize="20">
+        Title="Friend Organizer" Height="350" Width="525" FontSize="20">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" />
-            <ColumnDefinition/>
+            <ColumnDefinition Width="200" /> <!--For ListView-->
+            <ColumnDefinition/> <!--For next enclosing grid-->
         </Grid.ColumnDefinitions>
-        <ListView  ItemsSource="{Binding Friends}"
+        <!--No need to specify Grid.Column=0, this is by default and will use the first ColumnDefinition above-->
+        <ListView Grid.Column="0" ItemsSource="{Binding Friends}" 
                   SelectedItem="{Binding SelectedFriend,Mode=TwoWay}"
                   DisplayMemberPath="FirstName" />
         
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Height auto snaps the element next to above element -->
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition />
+                <RowDefinition /> <!--Height is taking leftover space - default value "*"-->
             </Grid.RowDefinitions>
-            <Label Content="Firstname" Margin="10 10 10 0"/>
+            <Label Content="Firstname" Margin="10 10 10 0"/> <!-- Margin left, top, right, bottom-->
             <TextBox Grid.Row="1" Text="{Binding SelectedFriend.FirstName,
                 Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
-            
-            <Label Grid.Row="2" Content="Lastname" Margin="10 0"/>
+
+            <Label Grid.Row="2" Content="Lastname" Margin="10 0"/> <!-- Shorthand for 10 left/right and 0 top/bottom -->
             <TextBox Grid.Row="3" Text="{Binding SelectedFriend.LastName,
                 Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
 
