@@ -12,7 +12,6 @@ namespace FriendOrganizer.UI.Data
     public class LookupDataService : IFriendLookupDataService
     {
         private readonly Func<FriendOrganizerDbContext> contextCreator;
-
         public LookupDataService(Func<FriendOrganizerDbContext> contextCreator)
         {
             this.contextCreator = contextCreator;

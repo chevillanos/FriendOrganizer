@@ -9,7 +9,6 @@ namespace FriendOrganizer.UI.ViewModel
     public class NavigationItemViewModel : ViewModelBase
     {
         private string _displayMember;
-
         public int Id { get; }
         public string DisplayMember
         {
