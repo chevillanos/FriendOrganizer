@@ -1,25 +1,67 @@
 ﻿using FriendOrganizer.Model;
 using FriendOrganizer.UI.Data;
+using FriendOrganizer.UI.Event;
+using FriendOrganizer.UI.View.Services;
+using Prism.Events;
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace FriendOrganizer.UI.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        public INavigationViewModel NavigationViewModel { get; }
-        public IFriendDetailViewModel FriendDetailViewModel { get; }
+        private readonly Func<IFriendDetailViewModel> friendDetailViewModelCreator;
+        private readonly IEventAggregator eventAggregator;
+        private readonly IMessageDialogService messageDialogService;
+        private IFriendDetailViewModel friendDetailViewModel;
+
 
         public MainViewModel(INavigationViewModel navigationViewModel,
-            IFriendDetailViewModel friendDetailViewModel)
+            Func<IFriendDetailViewModel> friendDetailViewModelCreator,
+            IEventAggregator eventAggregator,
+            IMessageDialogService messageDialogService)
         {
+            this.eventAggregator = eventAggregator;
+            this.messageDialogService = messageDialogService;
+            this.friendDetailViewModelCreator = friendDetailViewModelCreator;
+
+            eventAggregator.GetEvent<OpenFriendDetailViewEvent>()
+                .Subscribe(OnOpenFriendDetailView);
+
             NavigationViewModel = navigationViewModel;
-            FriendDetailViewModel = friendDetailViewModel;
         }
 
         public async Task LoadAsync()
         {
             await NavigationViewModel.LoadAsync();
+        }
+
+        public INavigationViewModel NavigationViewModel { get; }
+
+
+        public IFriendDetailViewModel FriendDetailViewModel
+        {
+            get { return friendDetailViewModel; }
+            set
+            {
+                friendDetailViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private async void OnOpenFriendDetailView(int friendId)
+        {
+            if (FriendDetailViewModel != null && FriendDetailViewModel.HasChanges)
+            {
+                var result = messageDialogService.ShowOkCancelDialog("You have made changes. Navigate away?", "Question");
+                if (result == MessageDialogResult.Cancel)
+                    return;
+            }
+
+            FriendDetailViewModel = friendDetailViewModelCreator();
+            await FriendDetailViewModel.LoadAsync(friendId);
         }
     }
 }
