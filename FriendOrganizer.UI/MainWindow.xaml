@@ -5,17 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FriendOrganizer.UI"
         xmlns:view="clr-namespace:FriendOrganizer.UI.View"
+        xmlns:viewModel="clr-namespace:FriendOrganizer.UI.ViewModel"
         mc:Ignorable="d"
         Title="Friend Organizer" Height="350" Width="525" FontSize="20">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewModel:FriendDetailViewModel}">
+            <view:FriendDetailView/>
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" /> <!--For ListView-->
-            <ColumnDefinition/> <!--For next enclosing grid-->
+            <ColumnDefinition Width="200" />
+            <!--For ListView-->
+            <ColumnDefinition/>
+            <!--For next enclosing grid-->
         </Grid.ColumnDefinitions>
+        <Menu Grid.ColumnSpan="2" FontSize="20">
+            <MenuItem Header="Create">
+                <MenuItem Header="New Friend" Command="{Binding CreateNewFriendCommand}"/>
+            </MenuItem>
+        </Menu>
         <!--No need to specify Grid.Column=0, this is by default and will use the first ColumnDefinition above-->
-        <view:NavigationView DataContext="{Binding NavigationViewModel}" />
-        <view:FriendDetailView Grid.Column="1" DataContext="{Binding FriendDetailViewModel}" />
+        <view:NavigationView Grid.Row="1" DataContext="{Binding NavigationViewModel}" />
+        <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding FriendDetailViewModel}" />
 
-        
+
     </Grid>
 </Window>

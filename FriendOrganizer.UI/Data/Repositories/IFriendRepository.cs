@@ -9,5 +9,7 @@ namespace FriendOrganizer.UI.Data.Repositories
         Task<Friend> GetIdByAsync(int friendId);
         Task SaveAsync();
         bool HasChanges();
+        void Add(Friend friend);
+        void Remove(Friend friend);
     }
 }
