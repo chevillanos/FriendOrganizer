@@ -1,8 +1,6 @@
 ﻿namespace FriendOrganizer.DataAccess.Migrations
 {
     using FriendOrganizer.Model;
-    using System;
-    using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
 
@@ -29,6 +27,13 @@
                 new ProgrammingLanguage { Name = "Swift" },
                 new ProgrammingLanguage { Name = "Java" }
                 );
+
+            // Needed to ensure the above Add/Update Friend already contains
+            // at least one data before calling Add/Update FriendPhoneNumber
+            context.SaveChanges();
+
+            context.FriendPhoneNumbers.AddOrUpdate(pn => pn.Number,
+                new FriendPhoneNumber { Number = "+69 123456789", FriendId = context.Friends.First().Id });
         }
     }
 }

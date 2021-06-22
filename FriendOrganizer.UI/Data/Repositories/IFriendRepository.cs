@@ -1,4 +1,5 @@
 ﻿using FriendOrganizer.Model;
+using FriendOrganizer.UI.Wrapper;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,5 +12,6 @@ namespace FriendOrganizer.UI.Data.Repositories
         bool HasChanges();
         void Add(Friend friend);
         void Remove(Friend friend);
+        void RemovePhoneNumber(FriendPhoneNumber selectedPhoneNumber);
     }
 }
