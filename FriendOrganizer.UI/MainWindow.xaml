@@ -27,12 +27,13 @@
         </Grid.ColumnDefinitions>
         <Menu Grid.ColumnSpan="2" FontSize="20">
             <MenuItem Header="Create">
-                <MenuItem Header="New Friend" Command="{Binding CreateNewFriendCommand}"/>
+                <MenuItem Header="New Friend" Command="{Binding CreateNewDetailCommand}"
+                          CommandParameter="{x:Type viewModel:FriendDetailViewModel}"/>
             </MenuItem>
         </Menu>
         <!--No need to specify Grid.Column=0, this is by default and will use the first ColumnDefinition above-->
         <view:NavigationView Grid.Row="1" DataContext="{Binding NavigationViewModel}" />
-        <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding FriendDetailViewModel}" />
+        <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding DetailViewModel}" />
 
 
     </Grid>

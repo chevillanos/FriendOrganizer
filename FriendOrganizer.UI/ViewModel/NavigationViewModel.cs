@@ -21,10 +21,10 @@ namespace FriendOrganizer.UI.ViewModel
             this.friendLookupService = friendLookupService;
             this.eventAggregator = eventAggregator;
             Friends = new ObservableCollection<NavigationItemViewModel>();
-            eventAggregator.GetEvent<AfterFriendSavedEvent>().Subscribe
-                (AfterFriendSaved);
-            eventAggregator.GetEvent<AfterFriendDeletedEvent>().Subscribe
-                (AfterFriendDeleted);
+            eventAggregator.GetEvent<AfterDetailSavedEvent>().Subscribe
+                (AfterDetailSaved);
+            eventAggregator.GetEvent<AfterDetailDeletedEvent>().Subscribe
+                (AfterDetailDeleted);
         }
 
         public async Task LoadAsync()
@@ -33,25 +33,36 @@ namespace FriendOrganizer.UI.ViewModel
             Friends.Clear();
             foreach (var item in lookup)
             {
-                Friends.Add(new NavigationItemViewModel(item.Id, item.DisplayMember, eventAggregator));
+                Friends.Add(new NavigationItemViewModel(item.Id, item.DisplayMember,
+                    nameof(FriendDetailViewModel), eventAggregator));
             }
         }
 
-        private void AfterFriendDeleted(int friendId)
+        private void AfterDetailDeleted(AfterDetailDeletedEventArgs args)
         {
-            var friend = Friends.SingleOrDefault(f => f.Id == friendId);
-            if (friend != null)
-                Friends.Remove(friend);
+            switch (args.ViewModelName)
+            {
+                case nameof(FriendDetailViewModel):
+                    var friend = Friends.SingleOrDefault(f => f.Id == args.Id);
+                    if (friend != null)
+                        Friends.Remove(friend);
+                    break;
+            }
         }
 
-        private void AfterFriendSaved(AfterFriendSavedEventArgs obj)
+        private void AfterDetailSaved(AfterDetailSavedEventArgs args)
         {
-            var lookupItem = Friends.SingleOrDefault(l => l.Id == obj.Id);
-            if (lookupItem == null)
-                Friends.Add(new NavigationItemViewModel(obj.Id, obj.DisplayMember, eventAggregator));
-            else
-                lookupItem.DisplayMember = obj.DisplayMember;
+            switch (args.ViewModelName)
+            {
+                case nameof(FriendDetailViewModel):
+                    var lookupItem = Friends.SingleOrDefault(l => l.Id == args.Id);
+                    if (lookupItem == null)
+                        Friends.Add(new NavigationItemViewModel(args.Id, args.DisplayMember,
+                            nameof(FriendDetailViewModel), eventAggregator));
+                    else
+                        lookupItem.DisplayMember = args.DisplayMember;
+                    break;
+            }
         }
-
     }
 }
