@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace FriendOrganizer.UI.Data.Lookups
 {
-    public class LookupDataService : IFriendLookupDataService, IProgrammingLanguageLookupDataService
+    public class LookupDataService : IFriendLookupDataService, IProgrammingLanguageLookupDataService,
+        IMeetingLookupDataService
     {
         private readonly Func<FriendOrganizerDbContext> contextCreator;
         public LookupDataService(Func<FriendOrganizerDbContext> contextCreator)
@@ -30,6 +31,22 @@ namespace FriendOrganizer.UI.Data.Lookups
             }
         }
 
+        public async Task<List<LookupItem>> GetMeetingLookupAsync()
+        {
+            using (var ctx = contextCreator())
+            {
+                var items = await ctx.Meetings.AsNoTracking()
+                    .Select(m => new LookupItem
+                    {
+                        Id = m.Id,
+                        DisplayMember = m.Title
+                    })
+                    .ToListAsync();
+
+                return items;
+            }
+        }
+
         public async Task<IEnumerable<LookupItem>> GetProgrammingLanguageLookupAsync()
         {
             using (var ctx = contextCreator())
@@ -42,5 +59,7 @@ namespace FriendOrganizer.UI.Data.Lookups
                     }).ToListAsync();
             }
         }
+
+        
     }
 }
