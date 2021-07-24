@@ -7,6 +7,7 @@ using Prism.Commands;
 using Prism.Events;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -18,7 +19,7 @@ namespace FriendOrganizer.UI.ViewModel
         private readonly IIndex<string, IDetailViewModel> detailViewModelCreator;
         private readonly IEventAggregator eventAggregator;
         private readonly IMessageDialogService messageDialogService;
-        private IDetailViewModel detailViewModel;
+        private IDetailViewModel selectedDetailViewModel;
 
 
         public MainViewModel(INavigationViewModel navigationViewModel,
@@ -29,10 +30,15 @@ namespace FriendOrganizer.UI.ViewModel
             this.eventAggregator = eventAggregator;
             this.messageDialogService = messageDialogService;
             NavigationViewModel = navigationViewModel;
+
+            DetailViewModels = new ObservableCollection<IDetailViewModel>();
+
             eventAggregator.GetEvent<OpenDetailViewEvent>()
                 .Subscribe(OnOpenDetailView);
             eventAggregator.GetEvent<AfterDetailDeletedEvent>()
                 .Subscribe(AfterDetailDeleted);
+            eventAggregator.GetEvent<AfterDetailClosedEvent>()
+                .Subscribe(AfterDetailClosed);
 
             CreateNewDetailCommand = new DelegateCommand<Type>(OnCreateNewDetailExecute);
 
@@ -46,37 +52,66 @@ namespace FriendOrganizer.UI.ViewModel
 
         public ICommand CreateNewDetailCommand { get; }
         public INavigationViewModel NavigationViewModel { get; }
-        public IDetailViewModel DetailViewModel
+        public ObservableCollection<IDetailViewModel> DetailViewModels { get; }
+        public IDetailViewModel SelectedDetailViewModel
         {
-            get { return detailViewModel; }
+            get { return selectedDetailViewModel; }
             set
             {
-                detailViewModel = value;
+                selectedDetailViewModel = value;
                 OnPropertyChanged();
             }
         }
 
         private async void OnOpenDetailView(OpenDetailViewEventArgs args)
         {
-            if (DetailViewModel != null && DetailViewModel.HasChanges)
+            var detailViewModel = DetailViewModels
+                .SingleOrDefault(vm => vm.Id == args.Id &&
+                vm.GetType().Name == args.ViewModelName);
+
+            if (detailViewModel == null)
             {
-                var result = messageDialogService.ShowOkCancelDialog("You have made changes. Navigate away?", "Question");
-                if (result == MessageDialogResult.Cancel)
-                    return;
+                detailViewModel = detailViewModelCreator[args.ViewModelName];
+                await detailViewModel.LoadAsync(args.Id);
+                DetailViewModels.Add(detailViewModel);
             }
 
-            DetailViewModel = detailViewModelCreator[args.ViewModelName];
-            await DetailViewModel.LoadAsync(args.Id);
+            SelectedDetailViewModel = detailViewModel;
         }
 
+        private int nextNewItemId = 0;
         private void OnCreateNewDetailExecute(Type viewModelType)
         {
-            OnOpenDetailView(new OpenDetailViewEventArgs { ViewModelName = viewModelType.Name });
+            OnOpenDetailView(new OpenDetailViewEventArgs
+            {
+                Id = nextNewItemId--,
+                ViewModelName = viewModelType.Name
+            });
         }
 
         private void AfterDetailDeleted(AfterDetailDeletedEventArgs args)
         {
-            DetailViewModel = null;
+            var detailViewModel = DetailViewModels
+                .SingleOrDefault(vm => vm.Id == args.Id &&
+                vm.GetType().Name == args.ViewModelName);
+
+            if (detailViewModel != null)
+                DetailViewModels.Remove(detailViewModel);
+        }
+
+        private void RemoveDetailViewModel(int id, string viewModelName)
+        {
+            var detailViewModel = DetailViewModels
+                            .SingleOrDefault(vm => vm.Id == id
+                            && vm.GetType().Name == viewModelName);
+
+            if (detailViewModel != null)
+                DetailViewModels.Remove(detailViewModel);
+        }
+
+        private void AfterDetailClosed(AfterDetailClosedEventArgs args)
+        {
+            RemoveDetailViewModel(args.Id, args.ViewModelName);
         }
     }
 }
