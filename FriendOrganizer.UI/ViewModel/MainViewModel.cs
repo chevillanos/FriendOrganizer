@@ -1,6 +1,4 @@
 ﻿using Autofac.Features.Indexed;
-using FriendOrganizer.Model;
-using FriendOrganizer.UI.Data;
 using FriendOrganizer.UI.Event;
 using FriendOrganizer.UI.View.Services;
 using Prism.Commands;
@@ -9,7 +7,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace FriendOrganizer.UI.ViewModel
@@ -41,6 +38,7 @@ namespace FriendOrganizer.UI.ViewModel
                 .Subscribe(AfterDetailClosed);
 
             CreateNewDetailCommand = new DelegateCommand<Type>(OnCreateNewDetailExecute);
+            OpenSingleDetailViewCommand = new DelegateCommand<Type>(OnOpenSingleDetailViewExecute);
 
             this.detailViewModelCreator = detailViewModelCreator;
         }
@@ -51,6 +49,7 @@ namespace FriendOrganizer.UI.ViewModel
         }
 
         public ICommand CreateNewDetailCommand { get; }
+        public ICommand OpenSingleDetailViewCommand { get; }
         public INavigationViewModel NavigationViewModel { get; }
         public ObservableCollection<IDetailViewModel> DetailViewModels { get; }
         public IDetailViewModel SelectedDetailViewModel
@@ -85,6 +84,15 @@ namespace FriendOrganizer.UI.ViewModel
             OnOpenDetailView(new OpenDetailViewEventArgs
             {
                 Id = nextNewItemId--,
+                ViewModelName = viewModelType.Name
+            });
+        }
+
+        private void OnOpenSingleDetailViewExecute(Type viewModelType)
+        {
+            OnOpenDetailView(new OpenDetailViewEventArgs
+            {
+                Id = -1,
                 ViewModelName = viewModelType.Name
             });
         }
