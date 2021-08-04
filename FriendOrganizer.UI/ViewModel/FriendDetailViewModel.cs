@@ -168,16 +168,16 @@ namespace FriendOrganizer.UI.ViewModel
                 && PhoneNumbers.All(pn => !pn.HasErrors)
                 && HasChanges;
         }
-        protected override async void OnDeleteExecute()
+        protected async override void OnDeleteExecute()
         {
             if (await friendRepository.HasMeetingsAsync(Friend.Id))
             {
-                MessageDialogService.ShowInfoDialog($"{Friend.FirstName} {Friend.LastName} can't be deleted. " +
+                await MessageDialogService.ShowInfoDialogAsync($"{Friend.FirstName} {Friend.LastName} can't be deleted. " +
                     $"Friend is part of at least one meeting");
                 return;
             }
 
-            var result = MessageDialogService.ShowOkCancelDialog($"Do you really want to delete the friend " +
+            var result = await MessageDialogService.ShowOkCancelDialogAsync($"Do you really want to delete the friend " +
                 $"{Friend.FirstName} {Friend.LastName}?", "Question");
             if (result == MessageDialogResult.OK)
             {
